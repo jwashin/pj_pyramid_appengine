@@ -1,14 +1,17 @@
 [buildout]
 find-links=http://dist.plone.org/thirdparty/
-develop=src/{{project}}
-parts={{project}}
+develop=src/{{package}}
+parts=
+    client-updates
+    {{project}}
 	tests
+	static-update
 ae-sdk-version=1.6.3
 ae-runtime=2.7
-
-[versions]
-webob=1.1.1
-pyramid=1.1
+webob-version=1.1.1
+include-site-packages=false
+pyjamas-rebuild-all=true
+pyjamas-buildopts=-m --no-compile-inplace
 
 [gae-sdk]
 recipe=hexagonit.recipe.download
@@ -26,7 +29,7 @@ cmds=
 
 [gae-sdk-27]
 recipe=hexagonit.recipe.download
-url=http://pypi.python.org/packages/source/W/WebOb/WebOb-1.1.1.zip
+url=http://pypi.python.org/packages/source/W/WebOb/WebOb-${buildout:webob-version}.zip
 sdk-root=${gae-sdk:destination}
 destination=${rm-old-webob:location}
 strip-top-level-dir=true
@@ -35,19 +38,16 @@ strip-top-level-dir=true
 recipe=rod.recipe.appengine
 packages=
 	pyramid
+	pyramid-rpc
 	mako
 	repoze.lru
 	zope.interface
 	zope.deprecation
-	zope.component
-	zope.event
-	paste
-	pastedeploy
 	venusian
 	translationstring
 	jinja2
 	
-src=src/{{project}}
+src=src/{{package}}
 server-script=devappserver
 zip-packages=False
 use_setuptools_pkg_resources=True
@@ -56,6 +56,48 @@ appengine-lib=${gae-sdk-27:sdk-root}
 [bootstrap]
 recipe=zc.recipe.egg
 eggs=pastescript
+
+[client-updates]
+recipe=collective.recipe.cmd:py
+on_update=true
+cmds=
+    >>> import shutil
+    >>> pj_rebuild_all=bool(eval('${buildout:pyjamas-rebuild-all}'.capitalize()))
+    >>> static_lib_rm = os.path.join('${buildout:directory}','src','{{package}}','{{package}}','static','lib')
+    >>> if pj_rebuild_all:
+    >>>     shutil.rmtree(static_lib_rm,ignore_errors=True)
+    >>> import os
+    >>> import subprocess
+    >>> client_src_dir = os.path.join('${buildout:directory}','src','{{package}}','{{package}}','clients')
+    >>> client_src_dir = os.path.abspath(client_src_dir)
+    >>> print('client src is at {}'.format(client_src_dir))
+    >>> subprocess_args = ['build.sh'] + '${buildout:pyjamas-buildopts}'.split()
+    >>> for dir in os.listdir(client_src_dir):
+    >>>    dirpath = os.path.join(client_src_dir,dir)
+    >>>    if os.path.isdir(dirpath):
+    >>>        print('looking at {}'.format(dirpath))
+    >>>        if 'build.sh' in os.listdir(dirpath):
+    >>>            os.chdir(dirpath)
+    >>>            caller = os.path.join(dirpath,'build.sh')
+    >>>            print('running {}. Does this have the correct path to pjsbuild?'.format(caller))
+    >>>            subprocess_args[0] = caller
+    >>>            print('running {}'.format(' '.join(subprocess_args)))
+    >>>            subprocess.call(subprocess_args)
+
+[static-update]
+recipe=collective.recipe.cmd:py
+on_update=true
+cmds=
+    >>> import shutil
+    >>> import os
+    >>> static_src = os.path.join('${buildout:directory}','src/{{package}}/{{package}}','static')
+    >>> static_dest = os.path.join('${buildout:parts-directory}','{{project}}','static_files')
+    >>> static_rm = os.path.join('${buildout:parts-directory}','{{project}}','{{package}}','static')
+    >>> client_src_rm = os.path.join('${buildout:parts-directory}','{{project}}','{{package}}','clients')
+    >>> shutil.rmtree(static_rm)
+    >>> shutil.rmtree(static_dest, ignore_errors=True)
+    >>> shutil.rmtree(client_src_rm)
+    >>> shutil.copytree(static_src, static_dest)
 
 [tests]
 recipe = zc.recipe.egg
