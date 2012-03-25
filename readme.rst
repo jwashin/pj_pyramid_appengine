@@ -43,7 +43,11 @@ This makes a bootstrap-ready skeleton with example code for your project.
 
 Since pyjsbuild can be anyplace you want, first edit the build.sh file in
 mynewproject/src/mynewproject/mynewproject/clients/rpc_client so that
-the pyjsbuild command is on its proper path.
+the pyjsbuild command is on its proper path. E.g.,
+
+::
+
+vi src/myapp/myapp/clients/rpc_client/build.sh
 
 Then
 
