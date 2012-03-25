@@ -30,6 +30,9 @@ made avaialable to use to create projects.
 Getting Started
 ===============
 
+It is assumed you already have a pyjamas installation. If not, you can get one
+from http://pyjs.org.
+
 To get started, first create your project skeleton.
 
 ::
@@ -63,7 +66,7 @@ Engine SDK (currently 1.6.3). it will be located in
 development server will be located in "./bin"
 
 Your source code for your project will be located at
-"./src/mynewproject", a bundle of your source and it's dependencies
+"./src/mynewproject". A bundle of your source and its dependencies
 will be located at "./parts/mynewproject"
 
 Running your project for development
