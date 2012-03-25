@@ -1,14 +1,14 @@
 ===================
- pyramid_appengine
+ pj_pyramid_appengine
 ===================
 
-A scaffold to help you get started writing a pyramid aplication that
-will run on Google App Engine.
+A scaffold to help you get started writing a pyramid application with pyjamas
+that will run on Google App Engine.
 
 Installation
 ============
 
-pyramid_appengine can be installed via pip or easy_install
+pj_pyramid_appengine can be installed via pip or easy_install (not yet!)
 
 ::
 
@@ -21,11 +21,10 @@ made avaialable to use to create projects.
 
 ::
 
-   $ paster create --list-templates
+   $ pcreate --list-templates
    Available templates:
-     pj_appengine_starter:      Pyramid scaffold for appengine
+     pj_appengine_starter:  Pyramid scaffold for appengine with pyjamas support
      ...
-
 
 
 Getting Started
@@ -35,7 +34,7 @@ To get started, first create your project skeleton.
 
 ::
 
-   $ paster create -t pj_appengine_starter mynewproject
+   $ pcreate -s pj_appengine_starter mynewproject
 
 A buildout environment for your project will be created. once
 complete, run the buildout as usual
@@ -213,3 +212,4 @@ or ...
 ::
 
    $ ../../bin/py.test
+
