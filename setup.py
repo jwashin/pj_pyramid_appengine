@@ -6,7 +6,7 @@ README = open(os.path.join(here, 'readme.rst')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 version = "0.5.1"
-requires = ["pastescript", 'pyramid']
+requires = ["pastescript", 'pyramid==1.3']
 setup(name='pj_pyramid_appengine',
       version=version,
       description="Scaffold + Tools for creating/developing pyramid applications with pyjamas on Google App Engine"
@@ -31,8 +31,7 @@ setup(name='pj_pyramid_appengine',
       zip_safe=False,
       install_requires=requires,
       entry_points="""
-      # -*- Entry points: -*-
-      [paste.paster_create_template]
-      appengine_starter=pj_pyramid_appengine.scaffolds:PyramidAppEngineStarterTemplate
+      [pyramid.scaffold]
+      pj_appengine_starter=pj_pyramid_appengine.scaffolds:PyramidAppEngineStarterTemplate
       """,
       )

@@ -23,7 +23,7 @@ made avaialable to use to create projects.
 
    $ paster create --list-templates
    Available templates:
-     appengine_starter:      Pyramid scaffold for appengine
+     pj_appengine_starter:      Pyramid scaffold for appengine
      ...
 
 
