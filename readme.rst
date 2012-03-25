@@ -30,8 +30,9 @@ made avaialable to use to create projects.
 Getting Started
 ===============
 
-It is assumed you already have a pyjamas installation. If not, you can get one
-from http://pyjs.org.
+It is assumed you already have a pyjamas installation. If not, you can get it
+from http://pyjs.org. Be sure to at least run its bootstrap, which creates the
+pyjsbuild command we need later.
 
 To get started, first create your project skeleton.
 
