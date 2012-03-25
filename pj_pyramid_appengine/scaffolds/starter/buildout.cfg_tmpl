@@ -1,0 +1,134 @@
+[buildout]
+find-links=http://dist.plone.org/thirdparty/
+develop=src/{{package}}
+parts=
+    make-jsonrpc-example-builder-executable
+    client-updates
+    {{project}}
+	tests
+	static-update
+ae-sdk-version=1.6.3
+ae-runtime=2.7
+webob-version=1.1.1
+include-site-packages=false
+pyjamas-rebuild-all=true
+pyjamas-buildopts=-m --no-compile-inplace --output ../../static
+
+[gae-sdk]
+recipe=hexagonit.recipe.download
+url=http://googleappengine.googlecode.com/files/google_appengine_${buildout:ae-sdk-version}.zip
+destination=${buildout:parts-directory}/google_appengine
+strip-top-level-dir=true
+
+[rm-old-webob]
+recipe=collective.recipe.cmd:py
+on_install=true
+location=${gae-sdk:destination}/lib/webob
+cmds=
+    >>> import shutil
+    >>> shutil.rmtree('${rm-old-webob:location}')
+
+[gae-sdk-27]
+recipe=hexagonit.recipe.download
+url=http://pypi.python.org/packages/source/W/WebOb/WebOb-${buildout:webob-version}.zip
+sdk-root=${gae-sdk:destination}
+destination=${rm-old-webob:location}
+strip-top-level-dir=true
+
+[{{project}}]
+recipe=rod.recipe.appengine
+packages=
+	pyramid
+	pyramid-rpc
+	pastedeploy
+	mako
+	repoze.lru
+	zope.interface
+	zope.deprecation
+	venusian
+	translationstring
+	jinja2
+	
+src=src/{{package}}
+server-script=devappserver
+zip-packages=False
+use_setuptools_pkg_resources=True
+appengine-lib=${gae-sdk-27:sdk-root}
+
+[bootstrap]
+recipe=zc.recipe.egg
+eggs=pastescript
+
+[make-jsonrpc-example-builder-executable]
+recipe=collective.recipe.cmd:py
+on_update=false
+on_install=true
+cmds=
+    >>> import os
+    >>> build_sh = os.path.join('${buildout:directory}','src','{{package}}','{{package}}','clients','rpc_client','build.sh')
+    >>> os.chmod(build_sh, 0o755)
+
+[client-updates]
+recipe=collective.recipe.cmd:py
+on_update=true
+on_install=true
+cmds=
+    >>> import shutil
+    >>> pj_rebuild_all=bool(eval('${buildout:pyjamas-rebuild-all}'.capitalize()))
+    >>> static_lib_rm = os.path.join('${buildout:directory}','src','{{package}}','{{package}}','static','lib')
+    >>> if pj_rebuild_all:
+    >>>     shutil.rmtree(static_lib_rm,ignore_errors=True)
+    >>> import os
+    >>> import subprocess
+    >>> client_src_dir = os.path.join('${buildout:directory}','src','{{package}}','{{package}}','clients')
+    >>> client_src_dir = os.path.abspath(client_src_dir)
+    >>> print('client src is at {}'.format(client_src_dir))
+    >>> subprocess_args = ['build.sh'] + '${buildout:pyjamas-buildopts}'.split()
+    >>> for dir in os.listdir(client_src_dir):
+    >>>    dirpath = os.path.join(client_src_dir,dir)
+    >>>    if os.path.isdir(dirpath):
+    >>>        print('looking at {}'.format(dirpath))
+    >>>        if 'build.sh' in os.listdir(dirpath):
+    >>>            os.chdir(dirpath)
+    >>>            caller = os.path.join(dirpath,'build.sh')
+    >>>            subprocess_args[0] = caller
+    >>>            print('running {}. Is this executable?'.format(' '.join(subprocess_args)))
+    >>>            if os.access(caller, os.X_OK):
+    >>>                subprocess.call(subprocess_args)
+    >>>            else:
+    >>>                print('Please make {} executable.'.format(caller))
+
+
+[static-update]
+recipe=collective.recipe.cmd:py
+on_update=true
+on_install=true
+cmds=
+    >>> import shutil
+    >>> import os
+    >>> static_src = os.path.join('${buildout:directory}','src/{{package}}/{{package}}','static')
+    >>> static_dest = os.path.join('${buildout:parts-directory}','{{project}}','static_files')
+    >>> static_rm = os.path.join('${buildout:parts-directory}','{{project}}','{{package}}','static')
+    >>> client_src_rm = os.path.join('${buildout:parts-directory}','{{project}}','{{package}}','clients')
+    >>> shutil.rmtree(static_rm)
+    >>> shutil.rmtree(static_dest, ignore_errors=True)
+    >>> shutil.rmtree(client_src_rm)
+    >>> shutil.copytree(static_src, static_dest)
+
+[tests]
+recipe = zc.recipe.egg
+eggs =
+    WebTest
+    WebOb<=1.1.1
+    coverage
+    pytest
+interpreter = python
+
+extra-paths =
+    	    ${buildout:bin-directory}
+	    ${buildout:directory}/parts/{{project}}
+	    ${gae-sdk-27:sdk-root}
+    	    ${gae-sdk-27:sdk-root}/lib/antlr3
+    	    ${gae-sdk-27:sdk-root}/lib/django
+    	    ${gae-sdk-27:sdk-root}/lib/fancy_urllib
+    	    ${gae-sdk-27:sdk-root}/lib/yaml/lib

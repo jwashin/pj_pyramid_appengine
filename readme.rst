@@ -35,15 +35,22 @@ To get started, first create your project skeleton.
 
 ::
 
-   $ paster create -t appengine_starter mynewproject
+   $ paster create -t pj_appengine_starter mynewproject
 
 A buildout environment for your project will be created. once
 complete, run the buildout as usual
 
+This makes a bootstrap-ready skeleton with example code for your project.
+
+Since pyjsbuild can be anyplace you want, first edit the build.sh file in
+mynewproject/src/mynewproject/mynewproject/clients/rpc_client so that
+the pyjsbuild command is on its proper path.
+
+Then
 
 ::
 
-   $ cd meynewproject
+   $ cd mynewproject
    $ /usr/bin/python2.7 bootstrap.py --distribute
    $ ./bin/buildout
 
@@ -110,6 +117,7 @@ looks like this...
    /myproject/verlruse
    /myproject/jinja2
    /myproject/newfangledlib
+   /myproject/static_files
 
 Because of this directory structure, which is vastly different from
 what is expected by other tools, we need a way to develop in your
@@ -145,11 +153,14 @@ When buildout is run ...
      environment under ./parts/google_appengine . Due to python2.7
      recently being announced for general availability, and the SDK
      not able to support 2.7 development yet, the sdk is patched by
-     replacing webob 0.9 with webob 1.1.1. This is done so that you
-     can develop using pyramid version <=1.2.
+     replacing webob 0.9 with webob 1.1.1, which is the webob provided
+     on the appengine servers.
    - tools such as devappserver, appcfg which are tools distributed
      with the app engine sdk are put in the buildouts bin directory
-   
+   - pyjamas applications in folders under 'clients' are built and placed in the
+     app's static folder
+   - the 'static' folder is moved to be served statically by the appengine
+     server.
 
 Managing dependencies for deployment
 ====================================
@@ -164,7 +175,6 @@ To update the dependencies for your application edit the packages
 attribute under the stanza for your project in the buildout.cfg and
 then run ./bin/buildout again to have the dependencies symlinked or
 copied to parts/mynewproject
-
 
 Testing
 =======

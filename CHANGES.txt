@@ -1,2 +1,5 @@
-0.5.1, 03-21-2012 -- minor changes to readme.rst 
+#pj_pyramid_appengine
+0.1 forked and edited from 0.5.1 of pyramid_appengine
+#pyramid_appengine
+0.5.1, 03-21-2012 -- minor changes to readme.rst
 0.5, 03-21-2012 -- initial release
